@@ -21,4 +21,8 @@ public interface PageId {
      * @return true if they are equal, and false otherwise.
      */
     boolean equals(Object o);
+
+    int getPageNumber();
+
+    String getFileName();
 }

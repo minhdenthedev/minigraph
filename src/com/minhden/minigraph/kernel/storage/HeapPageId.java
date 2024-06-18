@@ -2,23 +2,10 @@ package com.minhden.minigraph.kernel.storage;
 
 import java.util.Objects;
 
-public class HeapPageId implements PageId {
-
-    private String fileName;
-    private int pageNumber;
-
-    public HeapPageId(String fileName, int pageNumber) {
-        this.fileName = fileName;
-        this.pageNumber = pageNumber;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public int getPageNumber() {
-        return pageNumber;
-    }
+public record HeapPageId(String fileName, int pageNumber) implements PageId {
+    public static final int NODES_FILE = 1;
+    public static final int EDGES_FILE = 2;
+    public static final int PROPS_FILE = 3;
 
     @Override
     public int hashCode() {
@@ -36,14 +23,26 @@ public class HeapPageId implements PageId {
     }
 
     @Override
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    @Override
+    public String getFileName() {
+        return fileName;
+    }
+
+    @Override
     public int[] serialize() {
         int[] data = new int[2];
         if (fileName.equals("properties.minig")) {
-            data[0] = 2;
+            data[0] = PROPS_FILE;
         } else if (fileName.equals("edges.minig")) {
-            data[0] = 1;
+            data[0] = EDGES_FILE;
+        } else {
+            data[0] = NODES_FILE;
         }
-        data[1] = getPageNumber();
+        data[1] = pageNumber();
 
         return data;
     }

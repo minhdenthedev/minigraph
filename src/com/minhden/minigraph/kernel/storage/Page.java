@@ -26,4 +26,37 @@ public interface Page {
     void setPageData(byte[] data);
 
     // TODO: add transactions method
+
+    /**
+     *
+     * @return number of pins in this page
+     */
+    int pinCount();
+
+    /**
+     * Decrement pin count by one
+     */
+    void unPin();
+
+    /**
+     * Increment pin count by one
+     */
+    void pin();
+
+    /**
+     *
+     * @return true if the page is dirty
+     */
+    boolean isDirty();
+
+    /**
+     * set "dirty" status for the page.
+     */
+    void setDirty(boolean b);
+
+    void insertRecord(Record record);
+
+    void deleteRecord(Record record);
+
+    Record getRecord(int recordSlot);
 }

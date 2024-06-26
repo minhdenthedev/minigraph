@@ -1,6 +1,7 @@
 package com.minhden.minigraph.kernel.storage;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class HeapPage implements Page {
     final HeapPageId pid;
@@ -93,6 +94,7 @@ public class HeapPage implements Page {
 
     @Override
     public void insertRecord(Record record) {
+        // Make changes to in-memory data structure
         if (record.getFileType() != this.pid.serialize()[0]) {
             throw new IllegalArgumentException("Invalid type of record insertion");
         }
@@ -103,13 +105,28 @@ public class HeapPage implements Page {
         record.setSlotNumber(slot);
         this.records[slot] = record;
         this.usedSlot[slot] = true;
+        setDirty(true);
+
+        // Make changes to the byte array
+        int offset = slot * recordLength;
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+        buffer.put(offset, record.toByteArray(), 0, recordLength);
+        setPageData(buffer.array());
     }
 
     @Override
     public void deleteRecord(Record record) {
+        // Make changes to in-memory structure
         int slot = record.getSlotNumber();
         records[slot] = null;
         usedSlot[slot] = false;
+        setDirty(true);
+
+        // Make changes to byte array
+        int offset = slot * recordLength;
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+        buffer.put(offset, new byte[recordLength], 0, recordLength);
+        setPageData(buffer.array());
     }
 
     @Override
@@ -120,7 +137,8 @@ public class HeapPage implements Page {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("HEAP_PAGE_IN_MEMORY").append("\n");
+        sb.append("File: ").append(getId().getFileName()).append("\n");
+        sb.append("Page number: ").append(getId().getPageNumber()).append("\n");
         for (int i = 0; i < numSlots; i++) {
             if (records[i] == null) {
                 sb.append("Empty slot ...").append("\n");
